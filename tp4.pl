@@ -50,7 +50,7 @@ ejercito(E) :- desde(1,X), ejercitosDeNSoldados(X,E).
 ejercitosDeNSoldados(0,[]).
 ejercitosDeNSoldados(N,E) :- unidad(S), E = [(S,N)].
 %% ejercitosDeNSoldados(N,E) :- unidad(S), append([(S,1)],E2).
-ejercitosDeNSoldados(N,E) :-  between(1,N,A) , N2 is N - A, ejercitosDeNSoldados(N2,E1), ejercitosDeNSoldados(A,E2), append(E1,E2,E).
+ejercitosDeNSoldados(N,E) :- N>1, M is N - 1, between(1,M,A) , N2 is N - A, ejercitosDeNSoldados(N2,E1), ejercitosDeNSoldados(A,E2), append(E1,E2,E). % M de maximo
 
 %% ejercitosDeNSoldados(N,E) :- unidad(S), E = [(S,N)].
 
