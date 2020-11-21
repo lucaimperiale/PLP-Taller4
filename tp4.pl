@@ -62,8 +62,10 @@ ejercitosDeNSoldados(N,E) :- N>1, M is N - 1, between(1,M,A) , N2 is N - A, ejer
 % edificiosNecesarios ( +Ej , -Ed )
 edificiosNecesarios([],[]).
 %edificiosNecesarios((U,C),Ed) :- entrena(U,Ed).
-edificiosNecesarios([(U,C)],Ed) :- entrena(U,Ed).
-edificiosNecesarios([L|LS],Ed) :- edificiosNecesarios(L,Ed2), edificiosNecesarios(LS,Ed3), append(Ed2,Ed3,Ed).
+%edificiosNecesarios([(U,C)],Ed) :- entrena(U,Ed2), append([],[Ed2],Ed).
+
+edificiosNecesarios((U,C),Ed) :- entrena(U,Ed2), append([],[Ed2],Ed).
+edificiosNecesarios([L|LS],Ed) :- edificiosNecesarios(L,Ed2), edificiosNecesarios(LS,Ed3), append(Ed2,Ed3,Edd), sort(Edd,Ed).
 
 % Reversibilidad:
 
@@ -78,7 +80,7 @@ edificiosNecesarios([L|LS],Ed) :- edificiosNecesarios(L,Ed2), edificiosNecesario
   % b) funcione cuando el par de los primeros dos argumentos se corresponde a uno de los ya contemplados pero en el orden inverso.
   % En este caso se debe instanciar el tercer parámetro con el inverso multiplicativo del caso contemplado.
   % c) no se cuelgue ni genere soluciones repetidas.
-ids(jinete,       arquero,      1.5).
+/*ids(jinete,       arquero,      1.5).
 ids(jinete,       guerrillero,  0.5).
 ids(lancero,      jinete,       2).
 ids(lancero,      arquero,      0.6).
@@ -202,3 +204,4 @@ tests(todos) :-
   tests(puebloOptimo).
 
 tests :- tests(todos).
+*/
