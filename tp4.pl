@@ -60,6 +60,10 @@ ejercitosDeNSoldados(N,E) :- N>1, M is N - 1, between(1,M,A) , N2 is N - A, ejer
 
 % Ej 3 : instancia una lista de edificios necesarios para el ejército
 % edificiosNecesarios ( +Ej , -Ed )
+edificiosNecesarios([],[]).
+%edificiosNecesarios((U,C),Ed) :- entrena(U,Ed).
+edificiosNecesarios([(U,C)],Ed) :- entrena(U,Ed).
+edificiosNecesarios([L|LS],Ed) :- edificiosNecesarios(L,Ed2), edificiosNecesarios(LS,Ed3), append(Ed2,Ed3,Ed).
 
 % Reversibilidad:
 
