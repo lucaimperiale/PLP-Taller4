@@ -37,7 +37,7 @@ desde(X,Y) :- var(Y), N is X+1, desde(N,Y).
 % costo ( +L , -C )
 % Enunciado: Extender el predicado "costo" para que funcione con listas, tanto de batallones como de edificios.
 
-costo((U,C),Costo) :- costo(U,Costo2), Costo is Costo2*Costo.
+costo((U,C),Costo) :- costo(U,Costo2), Costo is Costo2*C.
 
 costo([],0).
 costo([L|LS],C) :- costo(LS,C2),costo(L,CL), C is (CL + C2).
@@ -107,9 +107,6 @@ ids(X,X,1):- !.
 % Ej 5
 % ids ( +A , +B , -I )
 ids((UA,CA),(UB,CB),Ib) :- ids(UA,UB,Iu), Ib is Iu * (CA / CB).
-ids([A],B) :- ids(A,B).
-ids(A,[B]) :- ids(A,B).
-
 % gana ( +A , +B )
 gana(A,B) :- ids(A,B,I), I >= 1.
 gana(_,[]) :- !.
@@ -118,10 +115,10 @@ gana([A|AS],[B|BS]) :- gana(B,A), gana(AS,[B|BS]), !.
 
 % ganaA ( ?A , +B , ?N )
 ganaA(A,B,N) :- nonvar(A), gana(A,B).
-ganaA(A,B,N) :- var(A), nonvar(N),between(1,N,T), ejercitosDeNSoldados(T,A2), gana(A2,[(UB,CB)]), A = A2.
+ganaA(A,B,N) :- var(A), nonvar(N),between(1,N,T), ejercitosDeNSoldados(T,A2), gana(A2,(UB,CB)), A = A2.
 %ganaA(A,(UB,CB),N) :- var(A), var(N),ejercitosDeNSoldados(CB,A), gana(A,[B]).
 %ganaA(A,[B],N) :- var(A),nonvar(N),between(1,N,T), ejercitosDeNSoldados(T,A), gana(A,[B]).
-ganaA(A,B,N) :- var(A), var(N),cantUnisEnEjercito(B,T),ejercitosDeNSoldados(T,A), gana(A,[B]).
+ganaA(A,B,N) :- var(A), var(N),cantUnisEnEjercito(B,T),ejercitosDeNSoldados(T,A), gana(A,B).
 
 cantUnisEnEjercito([],0).
 cantUnisEnEjercito((UA,CA),CA).
@@ -132,10 +129,13 @@ cantUnisEnEjercito([(UA,CA)|LS],C) :- cantUnisEnEjercito(LS,C2), C is CA+C2.
 
 % Ej 6 : instancia un pueblo para derrotar a un ejército enemigo
 % puebloPara ( +En , ?A , -Ed , -Ej )
+puebloPara([],[],[],[]).
+puebloPara(En,A,Ed,Ej) :- ganaA(Ej,En,N), edificiosNecesarios(Ej,Ed), aldeanosNecesarios(Ed,Ej,A).
 
-puebloPara(En,A,Ed,Ej) :- 
-ejercitoYedificiosNecesrios([],[]).
-ejercitoYedificiosNecesrios(En,Pu) :- ganaA(Ea,En,1), edificiosNecesarios(Ea,Eda), append(Eda,Ea,Pu).
+
+aldeanosNecesarios(Ed,Ej,A) :- costo(Ed,C1), costo(Ej,C2), Ct is C1+C2, A is ceiling(Ct/50) .
+%ejercitoYedificiosNecesrios([],[]).
+%ejercitoYedificiosNecesrios(En,Pu) :- ganaA(Ea,En,1), edificiosNecesarios(Ea,Eda), append(Eda,Ea,Pu).
 
 % Ej 7 : pueblo óptimo (en cantidad de aldenos necesarios)
 % puebloOptimoPara( +En , ?A , -Ed , -Ej )
