@@ -50,7 +50,7 @@ ejercito(E) :- desde(1,X), ejercitosDeNSoldados(X,E).
 ejercitosDeNSoldados(0,[]).
 ejercitosDeNSoldados(N,E) :- unidad(S), E = [(S,N)].
 %% ejercitosDeNSoldados(N,E) :- unidad(S), append([(S,1)],E2).
-ejercitosDeNSoldados(N,E) :- N>1, M is N - 1, between(1,M,A) , N2 is N - A, ejercitosDeNSoldados(N2,E1), ejercitosDeNSoldados(A,E2), append(E1,E2,E). % M de maximo
+ejercitosDeNSoldados(N,E) :- N>1, M is N - 1, between(1,M,A) , N2 is N - A, N2>0, A > 0, ejercitosDeNSoldados(N2,E1), ejercitosDeNSoldados(A,E2), append(E1,E2,E). % M de maximo
 
 %% ejercitosDeNSoldados(N,E) :- unidad(S), E = [(S,N)].
 
@@ -86,19 +86,24 @@ ids(lancero,      jinete,       2):- !.
 ids(lancero,      arquero,      0.6):- !.
 ids(guerrillero,  lancero,      1.1):- !.
 ids(guerrillero,  arquero,      2):- !.
+
+
+ids(arquero,jinete, I) :- ids(jinete,arquero,I2), I is 1/I2.
+ids(guerrillero,jinete, I) :- ids(jinete,guerrillero,I2), I is 1/I2.
+ids(jinete,lancero, I) :- ids(lancero,jinete,I2), I is 1/I2.
+ids(arquero,lancero, I) :- ids(lancero,arquero,I2), I is 1/I2.
+ids(lancero,guerrillero, I) :- ids(guerrillero,lancero,I2), I is 1/I2.
+ids(arquero,guerrillero, I) :- ids(guerrillero,arquero,I2), I is 1/I2.
+
+
+
+
 ids(X,X,1):- !.
-ids(X,Y,I) :- ids(Y,X,I2), I is 1/I2,!.
+%ids(X,Y,I) :- ids(Y,X,I2),!, I is 1/I2.
 
 
 % Reversibilidad:
-/*ids(X,Y,I) :- not(esParDado(X,Y)),ids(Y,X,I2), I is 1/I2 .
-esParDado(jinete,       arquero).
-esParDado(jinete,       guerrillero).
-esParDado(lancero,      jinete).
-esParDado(lancero,      arquero).
-esParDado(guerrillero,  lancero).
-esParDado(guerrillero,  arquero).
-*/
+
 % Ej 5
 % ids ( +A , +B , -I )
 ids((UA,CA),(UB,CB),Ib) :- ids(UA,UB,Iu), Ib is Iu * (CA / CB).
@@ -110,10 +115,18 @@ gana([A|AS],[B|BS]) :- gana(A,B), gana([A|AS],BS), !.
 gana([A|AS],[B|BS]) :- gana(B,A), gana(AS,[B|BS]), !.
 
 % ganaA ( ?A , +B , ?N )
-% Recordar que un batallón no puede tener más de 5 unidades y un ejército no puede tener más de 5 unidades
-% entre todos los batallones que lo componen.
+ganaA(A,B,N) :- nonvar(A), gana(A,B).
+ganaA(A,B,N) :- var(A), nonvar(N),between(1,N,T), ejercitosDeNSoldados(T,A2), gana(A2,[(UB,CB)]), A = A2.
+%ganaA(A,(UB,CB),N) :- var(A), var(N),ejercitosDeNSoldados(CB,A), gana(A,[B]).
+%ganaA(A,[B],N) :- var(A),nonvar(N),between(1,N,T), ejercitosDeNSoldados(T,A), gana(A,[B]).
+ganaA(A,B,N) :- var(A), var(N),cantUnisEnEjercito(B,T),ejercitosDeNSoldados(T,A), gana(A,[B]).
 
-% ¿Usaron "ejercito"? ¿por qué?
+cantUnisEnEjercito([],0).
+cantUnisEnEjercito((UA,CA),CA).
+cantUnisEnEjercito([(UA,CA)|LS],C) :- cantUnisEnEjercito(LS,C2), C is CA+C2.
+
+
+
 
 % Ej 6 : instancia un pueblo para derrotar a un ejército enemigo
 % puebloPara ( +En , ?A , -Ed , -Ej )
