@@ -107,6 +107,8 @@ ids(X,X,1):- !.
 % Ej 5
 % ids ( +A , +B , -I )
 ids((UA,CA),(UB,CB),Ib) :- ids(UA,UB,Iu), Ib is Iu * (CA / CB).
+ids([A],B) :- ids(A,B).
+ids(A,[B]) :- ids(A,B).
 
 % gana ( +A , +B )
 gana(A,B) :- ids(A,B,I), I >= 1.
@@ -130,6 +132,10 @@ cantUnisEnEjercito([(UA,CA)|LS],C) :- cantUnisEnEjercito(LS,C2), C is CA+C2.
 
 % Ej 6 : instancia un pueblo para derrotar a un ejército enemigo
 % puebloPara ( +En , ?A , -Ed , -Ej )
+
+puebloPara(En,A,Ed,Ej) :- 
+ejercitoYedificiosNecesrios([],[]).
+ejercitoYedificiosNecesrios(En,Pu) :- ganaA(Ea,En,1), edificiosNecesarios(Ea,Eda), append(Eda,Ea,Pu).
 
 % Ej 7 : pueblo óptimo (en cantidad de aldenos necesarios)
 % puebloOptimoPara( +En , ?A , -Ed , -Ej )
