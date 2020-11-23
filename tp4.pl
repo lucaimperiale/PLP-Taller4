@@ -80,15 +80,25 @@ edificiosNecesarios([L|LS],Ed) :- edificiosNecesarios(L,Ed2), edificiosNecesario
   % b) funcione cuando el par de los primeros dos argumentos se corresponde a uno de los ya contemplados pero en el orden inverso.
   % En este caso se debe instanciar el tercer parámetro con el inverso multiplicativo del caso contemplado.
   % c) no se cuelgue ni genere soluciones repetidas.
-/*ids(jinete,       arquero,      1.5).
-ids(jinete,       guerrillero,  0.5).
-ids(lancero,      jinete,       2).
-ids(lancero,      arquero,      0.6).
-ids(guerrillero,  lancero,      1.1).
-ids(guerrillero,  arquero,      2).
+ids(jinete,       arquero,      1.5):- !.
+ids(jinete,       guerrillero,  0.5):- !.
+ids(lancero,      jinete,       2):- !.
+ids(lancero,      arquero,      0.6):- !.
+ids(guerrillero,  lancero,      1.1):- !.
+ids(guerrillero,  arquero,      2):- !.
+ids(X,X,1):- !.
+ids(X,Y,I) :- ids(Y,X,I2), I is 1/I2,!.
+
 
 % Reversibilidad:
-
+/*ids(X,Y,I) :- not(esParDado(X,Y)),ids(Y,X,I2), I is 1/I2 .
+esParDado(jinete,       arquero).
+esParDado(jinete,       guerrillero).
+esParDado(lancero,      jinete).
+esParDado(lancero,      arquero).
+esParDado(guerrillero,  lancero).
+esParDado(guerrillero,  arquero).
+*/
 % Ej 5
 % ids ( +A , +B , -I )
 ids((UA,CA),(UB,CB),Ib) :- ids(UA,UB,Iu), Ib is Iu * (CA / CB).
@@ -204,4 +214,3 @@ tests(todos) :-
   tests(puebloOptimo).
 
 tests :- tests(todos).
-*/
