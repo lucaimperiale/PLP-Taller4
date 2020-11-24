@@ -130,16 +130,20 @@ cantUnisEnEjercito([(UA,CA)|LS],C) :- cantUnisEnEjercito(LS,C2), C is CA+C2.
 % Ej 6 : instancia un pueblo para derrotar a un ejército enemigo
 % puebloPara ( +En , ?A , -Ed , -Ej )
 puebloPara([],[],[],[]).
-puebloPara(En,A,Ed,Ej) :- ganaA(Ej,En,N), edificiosNecesarios(Ej,Ed), aldeanosNecesarios(Ed,Ej,A).
+puebloPara(En,A,Ed,Ej) :- var(A), ganaA(Ej,En,N), edificiosNecesarios(Ej,Ed), aldeanosNecesarios(Ed,Ej,A).
+puebloPara(En,A,Ed,Ej) :- nonvar(A), ganaA(Ej,En,N), edificiosNecesarios(Ej,Ed), ejercitosConNaldeanos(A,Ej,Ed).
 
 
+ejercitosConNaldeanos(A,Ej,Ed) :- costo(Ed,C1), costo(Ej,C2), Ct is C1 + C2 ,R is A * 50, R >= Ct.
 aldeanosNecesarios(Ed,Ej,A) :- costo(Ed,C1), costo(Ej,C2), Ct is C1+C2, A is ceiling(Ct/50) .
 %ejercitoYedificiosNecesrios([],[]).
 %ejercitoYedificiosNecesrios(En,Pu) :- ganaA(Ea,En,1), edificiosNecesarios(Ea,Eda), append(Eda,Ea,Pu).
 
 % Ej 7 : pueblo óptimo (en cantidad de aldenos necesarios)
 % puebloOptimoPara( +En , ?A , -Ed , -Ej )
-
+puebloOptimoPara([],[],[],[]).
+puebloOptimoPara(En, A, Ed, Ej) :- var(A), puebloPara(En,A,Ed,Ej), not(hayMejor(En,A,Ed,Ej)).
+hayMejor(En,A,Ed,Ej) :- puebloPara(En,A2,_,_), A > A2.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TESTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 cantidadTestsCosto(10).
