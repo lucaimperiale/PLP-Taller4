@@ -88,16 +88,16 @@ ids(guerrillero,  lancero,      1.1):- !.
 ids(guerrillero,  arquero,      2):- !.
 
 
-ids(arquero,jinete, I) :- ids(jinete,arquero,I2), I is 1/I2.
-ids(guerrillero,jinete, I) :- ids(jinete,guerrillero,I2), I is 1/I2.
-ids(jinete,lancero, I) :- ids(lancero,jinete,I2), I is 1/I2.
-ids(arquero,lancero, I) :- ids(lancero,arquero,I2), I is 1/I2.
-ids(lancero,guerrillero, I) :- ids(guerrillero,lancero,I2), I is 1/I2.
-ids(arquero,guerrillero, I) :- ids(guerrillero,arquero,I2), I is 1/I2.
+%ds(arquero,jinete, I) :- ids(jinete,arquero,I2), I is 1/I2.
+%ids(guerrillero,jinete, I) :- ids(jinete,guerrillero,I2), I is 1/I2.
+%ids(jinete,lancero, I) :- ids(lancero,jinete,I2), I is 1/I2.
+%ids(arquero,lancero, I) :- ids(lancero,arquero,I2), I is 1/I2.
+%ids(lancero,guerrillero, I) :- ids(guerrillero,lancero,I2), I is 1/I2.
+%ids(arquero,guerrillero, I) :- ids(guerrillero,arquero,I2), I is 1/I2.
 
 
 
-
+ids((UA,CA),(UB,CB),Ib) :- ids(UA,UB,Iu), Ib is Iu * (CA / CB),!.
 ids(X,X,1):- !.
 %ids(X,Y,I) :- ids(Y,X,I2),!, I is 1/I2.
 
@@ -106,7 +106,7 @@ ids(X,X,1):- !.
 
 % Ej 5
 % ids ( +A , +B , -I )
-ids((UA,CA),(UB,CB),Ib) :- ids(UA,UB,Iu), Ib is Iu * (CA / CB).
+%ids((UA,CA),(UB,CB),Ib) :- ids(UA,UB,Iu), Ib is Iu * (CA / CB).
 % gana ( +A , +B )
 gana(A,B) :- ids(A,B,I), I >= 1.
 gana(_,[]) :- !.
@@ -115,10 +115,14 @@ gana([A|AS],[B|BS]) :- gana(B,A), gana(AS,[B|BS]), !.
 
 % ganaA ( ?A , +B , ?N )
 ganaA(A,B,N) :- nonvar(A), gana(A,B).
-ganaA(A,B,N) :- var(A), nonvar(N),between(1,N,T), ejercitosDeNSoldados(T,A2), gana(A2,(UB,CB)), A = A2.
-%ganaA(A,(UB,CB),N) :- var(A), var(N),ejercitosDeNSoldados(CB,A), gana(A,[B]).
-%ganaA(A,[B],N) :- var(A),nonvar(N),between(1,N,T), ejercitosDeNSoldados(T,A), gana(A,[B]).
-ganaA(A,B,N) :- var(A), var(N),cantUnisEnEjercito(B,T),ejercitosDeNSoldados(T,A), gana(A,B).
+
+%ganaA(A,B,N) :- var(A), nonvar(N),between(1,N,T), ejercitosDeNSoldados(T,A), gana(A,[B]).
+ganaA(A,(UB,CB),N) :- var(A), var(N),between(1,CB,T),  unidad(S), A = (S,T), gana(A,(UB,CB)).
+ganaA(A,(UB,CB),N) :- var(A), nonvar(N), unidad(S), A = (S,N), gana(A,(UB,CB)).
+
+ganaA(A,[B|BS],N) :- var(A), var(N), cantUnisEnEjercito([B|BS],Cb),between(1,Cb,T), ejercitosDeNSoldados(T,A), gana(A,[B|BS]).
+ganaA(A,[B|BS],N) :- var(A), nonvar(N),ejercitosDeNSoldados(N,A), gana(A,[B|BS]).
+
 
 cantUnisEnEjercito([],0).
 cantUnisEnEjercito((UA,CA),CA).
@@ -142,8 +146,9 @@ aldeanosNecesarios(Ed,Ej,A) :- costo(Ed,C1), costo(Ej,C2), Ct is C1+C2, A is cei
 % Ej 7 : pueblo óptimo (en cantidad de aldenos necesarios)
 % puebloOptimoPara( +En , ?A , -Ed , -Ej )
 puebloOptimoPara([],[],[],[]).
-puebloOptimoPara(En, A, Ed, Ej) :- var(A), puebloPara(En,A,Ed,Ej), not(hayMejor(En,A,Ed,Ej)).
+puebloOptimoPara(En, A, Ed, Ej) :- puebloPara(En,A,Ed,Ej), not(hayMejor(En,A,Ed,Ej)).
 hayMejor(En,A,Ed,Ej) :- puebloPara(En,A2,_,_), A > A2.
+%puebloOptimoPara(En, A, Ed, Ej) :- nonvar(A), puebloPara(En,A,Ed,Ej), not(hayMejor(En,A,Ed,Ej)).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TESTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 cantidadTestsCosto(10).
@@ -163,7 +168,7 @@ testEjercito(1) :- ejercito([(lancero, 1), (jinete, 3)]), !.
 testEjercito(2) :- ejercito([(jinete, 5)]), !.
 testEjercito(3) :- ejercito([(guerrillero, 4), (guerrillero, 2)]), !.
 testEjercito(4) :- ejercito([(arquero, 1)]), !.
-testEjercito(5) :- ejercito([(arquero, 4), (guerrillero, 3), (jinete, 12), (lancero, 5)]), !.
+testEjercito(5) :- ejercito([(arquero, 4), (guerrillero, 3), (jinete, 2), (lancero, 1)]), !.
 
 cantidadTestsEdificios(5).
 testEdificios(1) :- edificiosNecesarios([(arquero, 2), (guerrillero, 2)], [arqueria]).
