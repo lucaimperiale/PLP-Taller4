@@ -52,7 +52,9 @@ ejercitosDeNSoldados(N,E) :- unidad(S), E = [(S,N)].
 %% ejercitosDeNSoldados(N,E) :- unidad(S), append([(S,1)],E2).
 ejercitosDeNSoldados(N,E) :- N>1, M is N - 1, between(1,M,A) , N2 is N - A, N2>0, A > 0, ejercitosDeNSoldados(N2,E1), ejercitosDeNSoldados(A,E2), append(E1,E2,E). % M de maximo
 
-%% ejercitosDeNSoldados(N,E) :- unidad(S), E = [(S,N)].
+%suman(A,B,R) :- between(1,R,A), B is R - A.
+%ejercitosDeNSoldados2(0,[]).
+%ejercitosDeNSoldados2(N,E) :- suman(A,B,N),
 
 
 
@@ -97,16 +99,16 @@ ids(guerrillero,  arquero,      2):- !.
 
 
 
-ids((UA,CA),(UB,CB),Ib) :- ids(UA,UB,Iu), Ib is Iu * (CA / CB),!.
+%ids((UA,CA),(UB,CB),Ib) :- ids(UA,UB,Iu), Ib is Iu * (CA / CB),!.
 ids(X,X,1):- !.
-%ids(X,Y,I) :- ids(Y,X,I2),!, I is 1/I2.
+ids(X,Y,I) :- unidad(X),unidad(Y),ids(Y,X,I2),!, I is 1/I2.
 
 
 % Reversibilidad:
 
 % Ej 5
 % ids ( +A , +B , -I )
-%ids((UA,CA),(UB,CB),Ib) :- ids(UA,UB,Iu), Ib is Iu * (CA / CB).
+ids((UA,CA),(UB,CB),Ib) :- ids(UA,UB,Iu), Ib is Iu * (CA / CB).
 % gana ( +A , +B )
 gana(A,B) :- ids(A,B,I), I >= 1.
 gana(_,[]) :- !.
@@ -163,12 +165,12 @@ testCosto(8) :- costo([cuartel, arqueria], 630).
 testCosto(9) :- costo([(lancero, 1), (arquero, 77), (jinete, 2), (arquero, 8)], 7970).
 testCosto(10) :- costo([(guerrillero, 2),(lancero, 3), (guerrillero, 4), (jinete, 5)], 1260).
 
-cantidadTestsEjercito(5).
+cantidadTestsEjercito(4).
 testEjercito(1) :- ejercito([(lancero, 1), (jinete, 3)]), !.
 testEjercito(2) :- ejercito([(jinete, 5)]), !.
 testEjercito(3) :- ejercito([(guerrillero, 4), (guerrillero, 2)]), !.
 testEjercito(4) :- ejercito([(arquero, 1)]), !.
-testEjercito(5) :- ejercito([(arquero, 4), (guerrillero, 3), (jinete, 2), (lancero, 1)]), !.
+%testEjercito(5) :- ejercito([(arquero, 2), (guerrillero, 2), (jinete, 2), (lancero, 3)]), !.
 
 cantidadTestsEdificios(5).
 testEdificios(1) :- edificiosNecesarios([(arquero, 2), (guerrillero, 2)], [arqueria]).
