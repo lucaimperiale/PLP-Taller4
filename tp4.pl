@@ -49,27 +49,27 @@ ejercito(E) :- desde(1,X), ejercitosDeNSoldados(X,E).
 
 ejercitosDeNSoldados(0,[]).
 ejercitosDeNSoldados(N,E) :- unidad(S), E = [(S,N)].
-%% ejercitosDeNSoldados(N,E) :- unidad(S), append([(S,1)],E2).
 ejercitosDeNSoldados(N,E) :- N>1, M is N - 1, between(1,M,A) , N2 is N - A, N2>0, A > 0, ejercitosDeNSoldados(N2,E1), ejercitosDeNSoldados(A,E2), append(E1,E2,E). % M de maximo
 
-%suman(A,B,R) :- between(1,R,A), B is R - A.
-%ejercitosDeNSoldados2(0,[]).
-%ejercitosDeNSoldados2(N,E) :- suman(A,B,N),
+%% suman(A,B,R) :- between(1,R,A), B is R - A.
+%% ejercitosDeNSoldados2(0,[]).
+%% ejercitosDeNSoldados2(N,E) :- suman(A,B,N),
 
-
-
-% Reversibilidad:
+% Reversibilidad: El parametro es reversible, y indica si es un ejercito valido en el caso de estar definido.
 
 % Ej 3 : instancia una lista de edificios necesarios para el ejército
 % edificiosNecesarios ( +Ej , -Ed )
 edificiosNecesarios([],[]).
-%edificiosNecesarios((U,C),Ed) :- entrena(U,Ed).
-%edificiosNecesarios([(U,C)],Ed) :- entrena(U,Ed2), append([],[Ed2],Ed).
 
 edificiosNecesarios((U,C),Ed) :- entrena(U,Ed2), append([],[Ed2],Ed).
 edificiosNecesarios([L|LS],Ed) :- edificiosNecesarios(L,Ed2), edificiosNecesarios(LS,Ed3), append(Ed2,Ed3,Edd), sort(Edd,Ed).
 
-% Reversibilidad:
+% Reversibilidad: Ed es reversible, ya que edificiosNecesarios funciona tanto este definida (devuelve las unidades que entrena) 
+% o si no (devuelve el edficio que entrena a la unidad).
+% Ej es reversible en el caso de batallones, pero no en el de ejercitos.
+
+edificiosNecesarios2([L|LS],Ed) :- ejercito([L|LS]), edificiosNecesarios([L|LS],Ed).
+
 
 % Ej 4 : índice de superioridad para unidades
 % ids ( +A , +B , -I )
@@ -90,21 +90,13 @@ ids(guerrillero,  lancero,      1.1):- !.
 ids(guerrillero,  arquero,      2):- !.
 
 
-%ds(arquero,jinete, I) :- ids(jinete,arquero,I2), I is 1/I2.
-%ids(guerrillero,jinete, I) :- ids(jinete,guerrillero,I2), I is 1/I2.
-%ids(jinete,lancero, I) :- ids(lancero,jinete,I2), I is 1/I2.
-%ids(arquero,lancero, I) :- ids(lancero,arquero,I2), I is 1/I2.
-%ids(lancero,guerrillero, I) :- ids(guerrillero,lancero,I2), I is 1/I2.
-%ids(arquero,guerrillero, I) :- ids(guerrillero,arquero,I2), I is 1/I2.
 
-
-
-%ids((UA,CA),(UB,CB),Ib) :- ids(UA,UB,Iu), Ib is Iu * (CA / CB),!.
 ids(X,X,1):- !.
-ids(X,Y,I) :- unidad(X),unidad(Y),ids(Y,X,I2),!, I is 1/I2.
+ids(X,Y,I) :- unidad(X),unidad(Y),ids(Y,X,I2), I is 1/I2.
 
 
-% Reversibilidad:
+%% Reversibilidad: El parametro no es reversible, en el caso que los otros parametros no esten definidos. Si si lo estan, el predicado devuelve 
+%% true si es correcto.
 
 % Ej 5
 % ids ( +A , +B , -I )
@@ -118,7 +110,6 @@ gana([A|AS],[B|BS]) :- gana(B,A), gana(AS,[B|BS]), !.
 % ganaA ( ?A , +B , ?N )
 ganaA(A,B,N) :- nonvar(A), gana(A,B).
 
-%ganaA(A,B,N) :- var(A), nonvar(N),between(1,N,T), ejercitosDeNSoldados(T,A), gana(A,[B]).
 ganaA(A,(UB,CB),N) :- var(A), var(N),between(1,CB,T),  unidad(S), A = (S,T), gana(A,(UB,CB)).
 ganaA(A,(UB,CB),N) :- var(A), nonvar(N), unidad(S), A = (S,N), gana(A,(UB,CB)).
 
@@ -130,7 +121,7 @@ cantUnisEnEjercito([],0).
 cantUnisEnEjercito((UA,CA),CA).
 cantUnisEnEjercito([(UA,CA)|LS],C) :- cantUnisEnEjercito(LS,C2), C is CA+C2.
 
-
+%% No utilizamos el predicado Ejerecito, ya que usamos una funcion auxiliar que nos da los ejercitos ya filtrados por cantidad de undiades.
 
 
 % Ej 6 : instancia un pueblo para derrotar a un ejército enemigo
@@ -142,15 +133,16 @@ puebloPara(En,A,Ed,Ej) :- nonvar(A), ganaA(Ej,En,N), edificiosNecesarios(Ej,Ed),
 
 ejercitosConNaldeanos(A,Ej,Ed) :- costo(Ed,C1), costo(Ej,C2), Ct is C1 + C2 ,R is A * 50, R >= Ct.
 aldeanosNecesarios(Ed,Ej,A) :- costo(Ed,C1), costo(Ej,C2), Ct is C1+C2, A is ceiling(Ct/50) .
-%ejercitoYedificiosNecesrios([],[]).
-%ejercitoYedificiosNecesrios(En,Pu) :- ganaA(Ea,En,1), edificiosNecesarios(Ea,Eda), append(Eda,Ea,Pu).
 
 % Ej 7 : pueblo óptimo (en cantidad de aldenos necesarios)
 % puebloOptimoPara( +En , ?A , -Ed , -Ej )
 puebloOptimoPara([],[],[],[]).
 puebloOptimoPara(En, A, Ed, Ej) :- puebloPara(En,A,Ed,Ej), not(hayMejor(En,A,Ed,Ej)).
 hayMejor(En,A,Ed,Ej) :- puebloPara(En,A2,_,_), A > A2.
-%puebloOptimoPara(En, A, Ed, Ej) :- nonvar(A), puebloPara(En,A,Ed,Ej), not(hayMejor(En,A,Ed,Ej)).
+
+
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TESTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 cantidadTestsCosto(10).
@@ -165,12 +157,12 @@ testCosto(8) :- costo([cuartel, arqueria], 630).
 testCosto(9) :- costo([(lancero, 1), (arquero, 77), (jinete, 2), (arquero, 8)], 7970).
 testCosto(10) :- costo([(guerrillero, 2),(lancero, 3), (guerrillero, 4), (jinete, 5)], 1260).
 
-cantidadTestsEjercito(4).
+cantidadTestsEjercito(5).
 testEjercito(1) :- ejercito([(lancero, 1), (jinete, 3)]), !.
 testEjercito(2) :- ejercito([(jinete, 5)]), !.
 testEjercito(3) :- ejercito([(guerrillero, 4), (guerrillero, 2)]), !.
 testEjercito(4) :- ejercito([(arquero, 1)]), !.
-%testEjercito(5) :- ejercito([(arquero, 2), (guerrillero, 2), (jinete, 2), (lancero, 3)]), !.
+testEjercito(5) :- ejercito([(arquero, 2), (guerrillero, 2), (jinete, 2), (lancero, 1)]), !.
 
 cantidadTestsEdificios(5).
 testEdificios(1) :- edificiosNecesarios([(arquero, 2), (guerrillero, 2)], [arqueria]).
