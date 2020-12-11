@@ -48,9 +48,9 @@ costo([L|LS],C) :- costo(LS,C2),costo(L,CL), C is (CL + C2).
 ejercito(E) :- desde(1,X), ejercitosDeNSoldados(X,E).
 
 ejercitosDeNSoldados(0,[]).
-ejercitosDeNSoldados(N,E) :- unidad(S), E = [(S,N)].
-ejercitosDeNSoldados(N,E) :- N>1, M is N - 1, between(1,M,A) , N2 is N - A, N2>0, A > 0, ejercitosDeNSoldados(N2,E1), ejercitosDeNSoldados(A,E2), append(E1,E2,E). % M de maximo
-
+%ejercitosDeNSoldados(N,E) :- unidad(S), E = [(S,N)].
+%ejercitosDeNSoldados(N,E) :- N>1, M is N - 1, between(1,M,A) , N2 is N - A, N2>0, A > 0, ejercitosDeNSoldados(N2,E1), ejercitosDeNSoldados(A,E2), append(E1,E2,E). % M de maximo
+ejercitosDeNSoldados(N,[(S,A)|ES]) :- N>0, between(1,N,A), unidad(S), M is N - A, ejercitosDeNSoldados(M,ES). 
 %% suman(A,B,R) :- between(1,R,A), B is R - A.
 %% ejercitosDeNSoldados2(0,[]).
 %% ejercitosDeNSoldados2(N,E) :- suman(A,B,N),
@@ -61,8 +61,8 @@ ejercitosDeNSoldados(N,E) :- N>1, M is N - 1, between(1,M,A) , N2 is N - A, N2>0
 % edificiosNecesarios ( +Ej , -Ed )
 edificiosNecesarios([],[]).
 
-edificiosNecesarios((U,C),Ed) :- entrena(U,Ed2), append([],[Ed2],Ed).
-edificiosNecesarios([L|LS],Ed) :- edificiosNecesarios(L,Ed2), edificiosNecesarios(LS,Ed3), append(Ed2,Ed3,Edd), sort(Edd,Ed).
+%edificiosNecesarios((U,C),[Ed]) :- entrena(U,Ed). %%falta eliminar repetidos
+edificiosNecesarios([(U,C)|LS],[Ed|Eds]) :- entrena(U,Ed), edificiosNecesarios(LS,Eds). %%falta eliminar repetidos
 
 % Reversibilidad: Ed es reversible, ya que edificiosNecesarios funciona tanto este definida (devuelve las unidades que entrena) 
 % o si no (devuelve el edficio que entrena a la unidad).
@@ -110,11 +110,11 @@ gana([A|AS],[B|BS]) :- gana(B,A), gana(AS,[B|BS]), !.
 % ganaA ( ?A , +B , ?N )
 ganaA(A,B,N) :- nonvar(A), gana(A,B).
 
-ganaA(A,(UB,CB),N) :- var(A), var(N),between(1,CB,T),  unidad(S), A = (S,T), gana(A,(UB,CB)).
-ganaA(A,(UB,CB),N) :- var(A), nonvar(N), unidad(S), A = (S,N), gana(A,(UB,CB)).
+ganaA((S,T),(UB,CB),N) :-  var(N),between(1,CB,T),  unidad(S), gana((S,T),(UB,CB)).
+ganaA((S,N),(UB,CB),N) :-  nonvar(N), unidad(S), gana((S,N),(UB,CB)).
 
-ganaA(A,[B|BS],N) :- var(A), var(N), cantUnisEnEjercito([B|BS],Cb),between(1,Cb,T), ejercitosDeNSoldados(T,A), gana(A,[B|BS]).
-ganaA(A,[B|BS],N) :- var(A), nonvar(N),ejercitosDeNSoldados(N,A), gana(A,[B|BS]).
+ganaA(A,[B|BS],N) :-  var(N), cantUnisEnEjercito([B|BS],Cb),between(1,Cb,T), ejercitosDeNSoldados(T,A), gana(A,[B|BS]).
+ganaA(A,[B|BS],N) :-  nonvar(N),ejercitosDeNSoldados(N,A), gana(A,[B|BS]).
 
 
 cantUnisEnEjercito([],0).
@@ -127,9 +127,10 @@ cantUnisEnEjercito([(UA,CA)|LS],C) :- cantUnisEnEjercito(LS,C2), C is CA+C2.
 % Ej 6 : instancia un pueblo para derrotar a un ejército enemigo
 % puebloPara ( +En , ?A , -Ed , -Ej )
 puebloPara([],[],[],[]).
-puebloPara(En,A,Ed,Ej) :- var(A), ganaA(Ej,En,N), edificiosNecesarios(Ej,Ed), aldeanosNecesarios(Ed,Ej,A).
-puebloPara(En,A,Ed,Ej) :- nonvar(A), ganaA(Ej,En,N), edificiosNecesarios(Ej,Ed), ejercitosConNaldeanos(A,Ej,Ed).
+puebloPara(En,A,Ed,Ej) :- var(A), generarEjYEd(En,Ed,Ej), aldeanosNecesarios(Ed,Ej,A).
+puebloPara(En,A,Ed,Ej) :- nonvar(A), generarEjYEd(En,Ed,Ej), ejercitosConNaldeanos(A,Ej,Ed).
 
+generarEjYEd(En,Ed,Ej):-ganaA(Ej,En,N), edificiosNecesarios(Ej,Ed).
 
 ejercitosConNaldeanos(A,Ej,Ed) :- costo(Ed,C1), costo(Ej,C2), Ct is C1 + C2 ,R is A * 50, R >= Ct.
 aldeanosNecesarios(Ed,Ej,A) :- costo(Ed,C1), costo(Ej,C2), Ct is C1+C2, A is ceiling(Ct/50) .
