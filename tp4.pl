@@ -57,7 +57,7 @@ ejercitosDeNSoldados(N,[(S,A)|ES]) :- between(1,N,A), unidad(S), M is N - A, eje
 
 % Reversibilidad: En el caso de E, si no esta instanciado se empezaran a generar todos los ejercitos posibles, de a un batallon a la vez. Generando 
 % el primer elemento del ejercito y luego recursivamente el resto, avanzando sobre el numero de soldados que tiene el ejercito.
-% En el caso de que E si este instanciado, se intentara de hacer algo parecido, esta vez se intentara de encontrar algun ejercito que unifique con E, para 
+% En el caso de que E si este instanciado se hara algo parecido, esta vez se intentara encontrar algun ejercito que unifique con E, para 
 % eso se intentara de generar todos los ejercitos posibles y ver cuales unifican con E, y aunque encuentre el que si unifica luego seguira buscando 
 % si algun otro lo hace.
 
@@ -70,9 +70,19 @@ edificiosNecesarios([],[]).
 edificiosNecesarios([(U,C)|Ls],[Ed|Eds]) :- edificiosNecesarios(Ls,Eds),entrena(U,Ed),not(member(Ed,Eds)). %%falta eliminar repetidos
 edificiosNecesarios([(U,C)|Ls],Eds) :- edificiosNecesarios(Ls,Eds),entrena(U,Ed),member(Ed,Eds).
 
-% Reversibilidad: Si Ej 
+% Reversibilidad: Si Ej esta instanciado, voy a armar la lista de edificios necesarios para mi ejercito de "atras para adelante", 
+% voy a llamar recursivamente hasta encontrar el ultimo elemento y empezar a armar la lista desde ahí. En cada elemento necesito verificar si el edificio
+% que voy a agregar a la lista ya fue agregado anteriormente, si ya existe entonces no necesito agregarlo nuevamente, si no esta entonces se vuelve la cabeza de mi
+% lista de edificios.
+% Si Ej no esta instanciado se empezaran a generar ejercitos (estos ejercitos tienen variables libres en la parte de cantidad), y se los unificara con los 
+% edificios necesarios para entrenar a dichos ejercitos. Solo se unificaran aquellos ejercitos cuyos batallones requieren edificios distintos, ya que si
+% requieren el mismo edificio no seran agregados. Una vez que se hayan generado todos los ejercitos distintos que tengan edificios distintos se generaran
+% infinitamente el resto de los ejercitos que repiten edificios pero no se instanciaran.
 
-
+% Si Ed no esta instanciado, se repetira exactamente el mismo caso que se explico en +Ej.
+% Si Ed esta instanciado se intetara de ver si Ej y Ed unifican correctamente, utilizando el mismo metodo explicado anteriormente, viendo el ultimo elemento primero
+% y luego recursivamente "para atras". En caso de que unifiquen correctamente luego intentara repetir el proceso utilizando el predicado que no se utilizo antes
+% lo que produce un false ya que son complementarios.
 
 
 
@@ -82,6 +92,10 @@ edificiosNecesarios([(U,C)|Ls],Eds) :- edificiosNecesarios(Ls,Eds),entrena(U,Ed)
 % Ej es reversible en el caso de batallones, pero no en el de ejercitos.
 
 edificiosNecesarios2([L|LS],Ed) :- ejercito([L|LS]), edificiosNecesarios([L|LS],Ed).
+% En el caso que E no este instanciada, edificiosNecesarios2 va a generar todos los posibles ejercitos en E con Ejercito(-E), para luego instanciar en 
+% Ed la lista de edificios necesarios para cada uno de ellos.
+% En el caso que E sí este instanciada, va a pasar algo similiar a lo que pasa en Ejercito(+E), donde ésta devuelve true con el mismo E, pero tambien
+% prueba con todos los otros posibles ejercitos si unifican, devolviendo false.Por lo que la funcion va a devolver los edificios necesarios para E en Ed, pero luego se va a colgar.
 
 
 % Ej 4 : índice de superioridad para unidades
@@ -108,8 +122,12 @@ ids(X,X,1):- !.
 ids(X,Y,I) :- unidad(X),unidad(Y),ids(Y,X,I2), I is 1/I2.
 
 
-%% Reversibilidad: El parametro no es reversible, en el caso que los otros parametros no esten definidos. Si si lo estan, el predicado devuelve 
-%% true si es correcto.
+%% Reversibilidad: Si I no esta instanciado, se intentara unificar con alguno de los predicados ya dados por "default" instanciando I con el valor adecuado, en caso de que ninguno de ellos
+% unifique se vera si son la misma unidad, de ser asi unificara el I con un 1, si este nuevamente no es el caso, se vera de unificar cambiando de lugar X e Y .
+% En caso de que I esta instanciado, va a ver si unifica con alguno de los predicados "default" o si son iguales, o si unifica al cambiar de lugar las variables. Al hacer esto 
+% ahora se deja I2 como variable no instanciada, y se instanciara con el primer predicado cuyas unidades  concuerden y se hara un cut cortando otras posibles soluciones,
+% luego se vera si el I2 instanciado es igual al valor dado originalmente. 
+
 
 % Ej 5
 % ids ( +A , +B , -I )
@@ -134,7 +152,9 @@ cantUnisEnEjercito([],0).
 cantUnisEnEjercito((UA,CA),CA).
 cantUnisEnEjercito([(UA,CA)|LS],C) :- cantUnisEnEjercito(LS,C2), C is CA+C2.
 
-%% No utilizamos el predicado Ejerecito, ya que usamos una funcion auxiliar que nos da los ejercitos ya filtrados por cantidad de undiades.
+%% No utilizamos el predicado Ejercito, ya que ganaA en ciertos casos tiene que generar ejercitos con la misma cantidad de unidades que el ya instanciado
+% aprovechamos una funcion auxiliar(ejercitosdeNSoldados) que ya nos provee un ejercito con la cantidad de unidades que necesitamos. Si utilizaramos Ejercito
+% tendriamos que generar tambien todos los ejercitos posibles con menos unidades de las necesarias.
 
 
 % Ej 6 : instancia un pueblo para derrotar a un ejército enemigo
