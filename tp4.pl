@@ -48,12 +48,8 @@ costo([L|LS],C) :- costo(LS,C2),costo(L,CL), C is (CL + C2).
 ejercito(E) :- desde(1,X), ejercitosDeNSoldados(X,E).
 
 ejercitosDeNSoldados(0,[]).
-%ejercitosDeNSoldados(N,E) :- unidad(S), E = [(S,N)].
-%ejercitosDeNSoldados(N,E) :- N>1, M is N - 1, between(1,M,A) , N2 is N - A, N2>0, A > 0, ejercitosDeNSoldados(N2,E1), ejercitosDeNSoldados(A,E2), append(E1,E2,E). % M de maximo
 ejercitosDeNSoldados(N,[(S,A)|ES]) :- between(1,N,A), unidad(S), M is N - A, ejercitosDeNSoldados(M,ES). 
-%% suman(A,B,R) :- between(1,R,A), B is R - A.
-%% ejercitosDeNSoldados2(0,[]).
-%% ejercitosDeNSoldados2(N,E) :- suman(A,B,N),
+
 
 % Reversibilidad: En el caso de E, si no esta instanciado se empezaran a generar todos los ejercitos posibles, de a un batallon a la vez. Generando 
 % el primer elemento del ejercito y luego recursivamente el resto, avanzando sobre el numero de soldados que tiene el ejercito.
@@ -66,7 +62,6 @@ ejercitosDeNSoldados(N,[(S,A)|ES]) :- between(1,N,A), unidad(S), M is N - A, eje
 % edificiosNecesarios ( +Ej , -Ed )
 edificiosNecesarios([],[]).
 
-%edificiosNecesarios((U,C),[Ed]) :- entrena(U,Ed). %%falta eliminar repetidos
 edificiosNecesarios([(U,C)|Ls],[Ed|Eds]) :- edificiosNecesarios(Ls,Eds),entrena(U,Ed),not(member(Ed,Eds)). %%falta eliminar repetidos
 edificiosNecesarios([(U,C)|Ls],Eds) :- edificiosNecesarios(Ls,Eds),entrena(U,Ed),member(Ed,Eds).
 
@@ -87,9 +82,6 @@ edificiosNecesarios([(U,C)|Ls],Eds) :- edificiosNecesarios(Ls,Eds),entrena(U,Ed)
 
 
 
-%Ed es reversible, ya que edificiosNecesarios funciona tanto este definida (devuelve las unidades que entrena) 
-% o si no (devuelve el edficio que entrena a la unidad).
-% Ej es reversible en el caso de batallones, pero no en el de ejercitos.
 
 edificiosNecesarios2([L|LS],Ed) :- ejercito([L|LS]), edificiosNecesarios([L|LS],Ed).
 % En el caso que E no este instanciada, edificiosNecesarios2 va a generar todos los posibles ejercitos en E con Ejercito(-E), para luego instanciar en 
