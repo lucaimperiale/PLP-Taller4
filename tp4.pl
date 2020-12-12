@@ -50,15 +50,16 @@ ejercito(E) :- desde(1,X), ejercitosDeNSoldados(X,E).
 ejercitosDeNSoldados(0,[]).
 %ejercitosDeNSoldados(N,E) :- unidad(S), E = [(S,N)].
 %ejercitosDeNSoldados(N,E) :- N>1, M is N - 1, between(1,M,A) , N2 is N - A, N2>0, A > 0, ejercitosDeNSoldados(N2,E1), ejercitosDeNSoldados(A,E2), append(E1,E2,E). % M de maximo
-ejercitosDeNSoldados(N,[(S,A)|ES]) :- N>0, between(1,N,A), unidad(S), M is N - A, ejercitosDeNSoldados(M,ES). 
+ejercitosDeNSoldados(N,[(S,A)|ES]) :- between(1,N,A), unidad(S), M is N - A, ejercitosDeNSoldados(M,ES). 
 %% suman(A,B,R) :- between(1,R,A), B is R - A.
 %% ejercitosDeNSoldados2(0,[]).
 %% ejercitosDeNSoldados2(N,E) :- suman(A,B,N),
 
-% Reversibilidad: En el case de E, si no esta instanciado se empezaran a generar todos los ejercitos posibles, de a un batallon a la vez. Generando 
-% el primer elemento del ejercito y luego recursivamente el resto, avanzando con el numero de soldados que tiene el ejercito.
+% Reversibilidad: En el caso de E, si no esta instanciado se empezaran a generar todos los ejercitos posibles, de a un batallon a la vez. Generando 
+% el primer elemento del ejercito y luego recursivamente el resto, avanzando sobre el numero de soldados que tiene el ejercito.
 % En el caso de que E si este instanciado, se intentara de hacer algo parecido, esta vez se intentara de encontrar algun ejercito que unifique con E, para 
-% eso se intentara de generar todos los ejercitos posibles y ver cuales unifican con E, y aunque encuentre el que si unifica luego seguira buscando si algun otro lo hace.
+% eso se intentara de generar todos los ejercitos posibles y ver cuales unifican con E, y aunque encuentre el que si unifica luego seguira buscando 
+% si algun otro lo hace.
 
 
 % Ej 3 : instancia una lista de edificios necesarios para el ejército
@@ -66,12 +67,10 @@ ejercitosDeNSoldados(N,[(S,A)|ES]) :- N>0, between(1,N,A), unidad(S), M is N - A
 edificiosNecesarios([],[]).
 
 %edificiosNecesarios((U,C),[Ed]) :- entrena(U,Ed). %%falta eliminar repetidos
-edificiosNecesarios([(U,C)|Ls],[Ed|Eds]) :-entrena(U,Ed), edificiosNecesarios(Ls,Eds). %%falta eliminar repetidos
-% Reversibilidad: En el caso de Ej no instanciado, asumiendo que Ed no esta instanciado, primero se intentara ver que combinacion de edificio y unidad se unifican,
-% una vez que se haya visto las 4 unidades basicas se procedera a ver el "resto" del ejercito recursivamente, y se repetira el mismo procedimiento 
-% instanciando Ej y Ed en las combinaciones que unifiquen. Para todos estos casos C, la cantidad de unidades no se podra unificar con nada y quedara libre
-% Si Ej esta instanciada se buscara que edificio unifica, mediante entrena. Una vez encontrado se vera si el ejercito tiene o no mas batallones y se repetira
-% recursivamente la busqueda.
+edificiosNecesarios([(U,C)|Ls],[Ed|Eds]) :- edificiosNecesarios(Ls,Eds),entrena(U,Ed),not(member(Ed,Eds)). %%falta eliminar repetidos
+edificiosNecesarios([(U,C)|Ls],Eds) :- edificiosNecesarios(Ls,Eds),entrena(U,Ed),member(Ed,Eds).
+
+% Reversibilidad: Si Ej 
 
 
 
