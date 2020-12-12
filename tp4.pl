@@ -55,16 +55,30 @@ ejercitosDeNSoldados(N,[(S,A)|ES]) :- N>0, between(1,N,A), unidad(S), M is N - A
 %% ejercitosDeNSoldados2(0,[]).
 %% ejercitosDeNSoldados2(N,E) :- suman(A,B,N),
 
-% Reversibilidad: El parametro es reversible, y indica si es un ejercito valido en el caso de estar definido.
+% Reversibilidad: En el case de E, si no esta instanciado se empezaran a generar todos los ejercitos posibles, de a un batallon a la vez. Generando 
+% el primer elemento del ejercito y luego recursivamente el resto, avanzando con el numero de soldados que tiene el ejercito.
+% En el caso de que E si este instanciado, se intentara de hacer algo parecido, esta vez se intentara de encontrar algun ejercito que unifique con E, para 
+% eso se intentara de generar todos los ejercitos posibles y ver cuales unifican con E, y aunque encuentre el que si unifica luego seguira buscando si algun otro lo hace.
+
 
 % Ej 3 : instancia una lista de edificios necesarios para el ejército
 % edificiosNecesarios ( +Ej , -Ed )
 edificiosNecesarios([],[]).
 
 %edificiosNecesarios((U,C),[Ed]) :- entrena(U,Ed). %%falta eliminar repetidos
-edificiosNecesarios([(U,C)|LS],[Ed|Eds]) :- entrena(U,Ed), edificiosNecesarios(LS,Eds). %%falta eliminar repetidos
+edificiosNecesarios([(U,C)|Ls],[Ed|Eds]) :-entrena(U,Ed), edificiosNecesarios(Ls,Eds). %%falta eliminar repetidos
+% Reversibilidad: En el caso de Ej no instanciado, asumiendo que Ed no esta instanciado, primero se intentara ver que combinacion de edificio y unidad se unifican,
+% una vez que se haya visto las 4 unidades basicas se procedera a ver el "resto" del ejercito recursivamente, y se repetira el mismo procedimiento 
+% instanciando Ej y Ed en las combinaciones que unifiquen. Para todos estos casos C, la cantidad de unidades no se podra unificar con nada y quedara libre
+% Si Ej esta instanciada se buscara que edificio unifica, mediante entrena. Una vez encontrado se vera si el ejercito tiene o no mas batallones y se repetira
+% recursivamente la busqueda.
 
-% Reversibilidad: Ed es reversible, ya que edificiosNecesarios funciona tanto este definida (devuelve las unidades que entrena) 
+
+
+
+
+
+%Ed es reversible, ya que edificiosNecesarios funciona tanto este definida (devuelve las unidades que entrena) 
 % o si no (devuelve el edficio que entrena a la unidad).
 % Ej es reversible en el caso de batallones, pero no en el de ejercitos.
 
