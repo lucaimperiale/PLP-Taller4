@@ -56,6 +56,7 @@ ejercitosDeNSoldados(N,[(S,A)|ES]) :- between(1,N,A), unidad(S), M is N - A, eje
 % En el caso de que E si este instanciado se hara algo parecido, esta vez se intentara encontrar algun ejercito que unifique con E, para 
 % eso se intentara de generar todos los ejercitos posibles y ver cuales unifican con E, y aunque encuentre el que si unifica luego seguira buscando 
 % si algun otro lo hace.
+%Por lo explicado anteriormente entonces E no es reversible, ya que el comportamiento esperado seria que si E esta instanciado devuelva true si es un ejercito correcto nomas, pero no termina nunca.
 
 
 % Ej 3 : instancia una lista de edificios necesarios para el ejército
@@ -79,6 +80,12 @@ edificiosNecesarios([(U,C)|Ls],Eds) :- edificiosNecesarios(Ls,Eds),entrena(U,Ed)
 % y luego recursivamente "para atras". En caso de que unifiquen correctamente luego intentara repetir el proceso utilizando el predicado que no se utilizo antes
 % lo que produce un false ya que son complementarios.
 
+%En Ed si es reversible, si Ed esta instanciado el comportamiento esperado seria que al instanciar tanto un edificio como un ejercito me diga si la lista de edificiosNecesarios2
+% son los necesarios para entrenar a dicho ejercito.
+
+%En el caso de Ej no es reversible, se esperaria que se instancien todos los ejercitos posibles y los edificios necesarios para dichos ejercitos pero Solo
+% se instanciaran ejercitos (y sin su cantidad de unidades ) hasta cierto punto y luego el programa se traba, generando infinitos ejercitos pero sin poder unificarlos a nuevas listas de edificios distintas.
+
 
 
 
@@ -89,6 +96,8 @@ edificiosNecesarios2([L|LS],Ed) :- ejercito([L|LS]), edificiosNecesarios([L|LS],
 % En el caso que E sí este instanciada, va a pasar algo similiar a lo que pasa en Ejercito(+E), donde ésta devuelve true con el mismo E, pero tambien
 % prueba con todos los otros posibles ejercitos si unifican, devolviendo false.Por lo que la funcion va a devolver los edificios necesarios para E en Ed, pero luego se va a colgar.
 
+%Como se menciono, en el caso de que Ej si esta instanciado pasa algo similar como en Ejercito, que el programa busca eternamente unificar Ej con algun otro ejercito y por lo tanto 
+% trabandose, eso lo hace no reversible.
 
 % Ej 4 : índice de superioridad para unidades
 % ids ( +A , +B , -I )
@@ -119,6 +128,8 @@ ids(X,Y,I) :- unidad(X),unidad(Y),ids(Y,X,I2), I is 1/I2.
 % En caso de que I esta instanciado, va a ver si unifica con alguno de los predicados "default" o si son iguales, o si unifica al cambiar de lugar las variables. Al hacer esto 
 % ahora se deja I2 como variable no instanciada, y se instanciara con el primer predicado cuyas unidades  concuerden y se hara un cut cortando otras posibles soluciones,
 % luego se vera si el I2 instanciado es igual al valor dado originalmente. 
+% Por lo explicado anteriormente es reversible en I, se esperaria que si esta instanciado I devuelva true si se puede unificar con alguno de las relaciones de unidades dadas (tanto las defult como
+% las que definimos nosotros) y sucede.
 
 
 % Ej 5
